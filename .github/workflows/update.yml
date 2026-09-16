@@ -1,0 +1,47 @@
+name: Auto Convert GOODBYEADS to MRS
+
+on:
+  schedule:
+    - cron: '0 19 * * *' # 每天北京时间凌晨 03:00 自动运行
+  workflow_dispatch:     # 支持手动一键触发
+
+permissions:
+  contents: write
+
+jobs:
+  convert:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Mihomo
+        run: |
+          # 获取 mihomo 最新稳定版下载地址
+          DOWNLOAD_URL=$(curl -s https://api.github.com/repos/MetaCubeX/mihomo/releases/latest | grep "browser_download_url.*linux-amd64-compatible.*\.gz" | head -n 1 | cut -d '"' -f 4)
+          curl -L -o mihomo.gz "$DOWNLOAD_URL"
+          gunzip mihomo.gz
+          chmod +x mihomo
+          sudo mv mihomo /usr/local/bin/mihomo
+
+      - name: Run Converter
+        run: |
+          python convert.py
+
+      - name: Commit and Push .mrs
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add goodbyeads.mrs goodbyeads.txt
+          # 仅当文件发生变化时才提交
+          if git diff --cached --quiet; then
+            echo "No changes in rules."
+          else
+            git commit -m "chore: auto update goodbyeads.mrs [skip ci]"
+            git push
+          fi
