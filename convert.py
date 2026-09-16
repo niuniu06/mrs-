@@ -5,8 +5,8 @@ import subprocess
 import ipaddress
 
 SOURCE_URL = "https://raw.githubusercontent.com/217heidai/adblockfilters/main/rules/adblockdns.txt"
-CLEAN_TXT = "goodbyeads.txt"
-OUTPUT_MRS = "goodbyeads.mrs"
+CLEAN_TXT = "ads.txt"
+OUTPUT_MRS = "ads.mrs"
 
 def is_ip(addr):
     try:
