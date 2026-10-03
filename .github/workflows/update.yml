@@ -33,6 +33,11 @@ jobs:
         run: |
           python convert.py
 
+          # -------- 新加的部分开始 --------
+          python update_ai.py
+          mihomo convert-ruleset domain text ai.txt ai.mrs
+          # -------- 新加的部分结束 --------
+
       - name: Commit and Push .mrs
         run: |
           git config --global user.name "github-actions[bot]"
