@@ -1,8 +1,18 @@
 import urllib.request
 
+# --- 基础源 ---
 V2FLY_BASE_URL = "https://raw.githubusercontent.com/v2fly/domain-list-community/master/data/"
-ACL4SSR_URL = "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Ruleset/AI.list"
 VPSDance_URL = "https://raw.githubusercontent.com/VPSDance/ai-proxy-rules/main/rules/clash/global.yaml"
+
+# --- Clash List 格式源 (ACL4SSR + Blackmatrix7) ---
+# 如果以后有更多类似格式的直链，直接按格式加在这里即可！
+CLASH_LIST_URLS = {
+    "ACL4SSR_AI": "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Ruleset/AI.list",
+    "BM7_OpenAI": "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/OpenAI/OpenAI.list",
+    "BM7_Claude": "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Claude/Claude.list",
+    "BM7_Gemini": "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/BardAI/BardAI.list",
+    "BM7_Copilot": "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Copilot/Copilot.list"
+}
 
 domains = set()
 exact_domains = set()
@@ -46,8 +56,9 @@ def parse_v2fly(name, visited=None):
         elif ':' not in line:
             add_domain(line)
 
-def parse_acl4ssr():
-    content = fetch(ACL4SSR_URL)
+# 解析传统的 Clash List (支持 ACL4SSR 和 Blackmatrix7)
+def parse_clash_list(url):
+    content = fetch(url)
     for line in content.splitlines():
         line = line.split('#')[0].strip()
         if not line: continue
@@ -75,14 +86,19 @@ def parse_vpsdance():
                 elif rule_type == 'DOMAIN':
                     add_domain(val, exact=True)
 
-print("Fetching v2fly...")
+# ----- 执行抓取流程 -----
+print("1. Fetching v2fly category-ai-!cn (包含嵌套include)...")
 parse_v2fly('category-ai-!cn')
-print("Fetching acl4ssr...")
-parse_acl4ssr()
-print("Fetching vpsdance...")
+
+print("\n2. Fetching Clash List 源 (ACL4SSR & Blackmatrix7)...")
+for name, url in CLASH_LIST_URLS.items():
+    print(f" -> Fetching {name}...")
+    parse_clash_list(url)
+
+print("\n3. Fetching VPSDance...")
 parse_vpsdance()
 
-# 智能去重
+# ----- 智能合并与去重 -----
 sorted_domains = sorted(list(domains), key=lambda x: len(x.split('.')))
 optimized_domains = set()
 for d in sorted_domains:
@@ -114,4 +130,4 @@ with open('ai.txt', 'w') as f:
     for rule in sorted(list(final_rules)):
         f.write(f"{rule}\n")
 
-print(f"Exported {len(final_rules)} domains to ai.txt")
+print(f"\n✅ All done! Exported {len(final_rules)} domains to ai.txt")
