@@ -327,9 +327,12 @@ ppl-ai-file-upload.s3.amazonaws.com
 pplx-res.cloudinary.com
 production-openaicom-storage.azureedge.net
 q-developer-integration.us-east-1.api.aws
+r.bing.com
 self.events.data.microsoft.com
 servd-anthropic-website.b-cdn.net
+services.bingapis.com
 static.cloudflareinsights.com
 storage.googleapis.com
 sydney.bing.com
 webchannel-alkalimakersuite-pa.clients6.google.com
+www.bing.com
